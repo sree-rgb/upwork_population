@@ -7,7 +7,8 @@ class Individual:
 	def survive(self):
 		return random.choice([None,(Individual(self.generation_number+1),Individual(self.generation_number+1))])
 class Population:
-	def __init__(self,number_of_people=1000):
+	def __init__(self):
+		number_of_people=1 # IMPORTANT
 		self.individuals=[]
 		self.current_generation=1
 
@@ -25,61 +26,72 @@ class Population:
 					generation.append(x)
 		self.current_generation+=1
 		self.individuals=generation
-		self.total_survivors=self.total_survivors+len(generation)
 		return len(generation)
 	def get_average_number_of_survivors_per_generation(self):
 		return self.total_survivors/self.current_generation
-def numberOfSurvivors():
+def numberOfSurvivors(number_of_generations=100):
 	'''
 	1. the number of surviving (non-extinct) populations
-	For 10 generations.
+	per generation.
 	'''
-	pop=Population(1000)
-	new_pop=[]
-	for x in range(10):
-
-		new_pop.append(len(pop))
-		pop.get_Next_Generation()
-	pylab.title('Survivors')
+	replicate_populations=[Population() for x in range(1000)]
+	total_number_of_surviving_populations=[]
+	for x in range(number_of_generations):
+		number_of_surviving_populations=0
+		for pop in replicate_populations:
+			if (pop.get_Next_Generation()):
+				number_of_surviving_populations+=1
+		total_number_of_surviving_populations.append(number_of_surviving_populations)
+	pylab.title('Number of Surviving Populations per generation')
 	pylab.xlabel('Generation Number')
-	pylab.ylabel('Number of survivors')
-	pylab.plot([x for x in range(1,len(new_pop)+1)],new_pop)
+	pylab.ylabel('Number of surviving populations')
+	pylab.plot([x for x in range(1,len(total_number_of_surviving_populations)+1)],total_number_of_surviving_populations)
 	pylab.show()
 
-def averageNumberOfSurvivors(samplesize=10,number_of_generations=10):
+def averageNumberOfSurvivors(number_of_generations=100):
 	'''
 	The average number of individuals per surviving population
 	'''
-	populations = [Population() for x in range(samplesize)]
-	avg_number_of_survivors=[]
-	for pop in populations:
-		for x in range(number_of_generations):
-			pop.get_Next_Generation()
-		avg_number_of_survivors.append(pop.get_average_number_of_survivors_per_generation())
-	pylab.title('Average no of Survivors for 10 generations')
-	pylab.xlabel('Population Sample Number')
+	replicate_populations=[Population() for x in range(1000)]
+	avg_individuals_survived=[]
+	for x in range(number_of_generations):
+		no_of_individuals_survived=0
+		number_of_surviving_populations=0
+		for pop in replicate_populations:
+			temp=pop.get_Next_Generation()
+			if temp:
+				number_of_surviving_populations+=1
+			no_of_individuals_survived+=temp
+		avg_individuals_survived.append(no_of_individuals_survived/number_of_surviving_populations)
+				
+
+	pylab.title(f'Average no of Survivors for {number_of_generations} generations')
+	pylab.xlabel('Generation Number')
 	pylab.ylabel('Average Number of survivors')
-	pylab.plot([x for x in range(1,len(avg_number_of_survivors)+1)],avg_number_of_survivors)
+	pylab.plot([x for x in range(1,len(avg_individuals_survived)+1)],avg_individuals_survived)
 	pylab.show()
-def total_number_of_individuals(samplesize=100,number_of_generations=10):
+def total_number_of_individuals(number_of_generations=100):
 
 	'''
 	The total number of individuals summed over all surviving populations, all as functions of the number of elapsed generations
 	'''
-	populations = [Population() for x in range(samplesize)]
-	
-	survivors_per_generation=[]
-	for generation in range(number_of_generations):
-		number_of_survivors=[]
-		for pop in populations:
-			number_of_survivors.append(pop.get_Next_Generation())
-		survivors_per_generation.append(sum(number_of_survivors))
-	pylab.title(f'Total number of individuals summed over all surviving populations,for {number_of_generations} generations for a sample size {samplesize}')
-	pylab.xlabel('Generation Number')
-	pylab.ylabel('Total Number of Survivors')
-	pylab.plot([x for x in range(1,number_of_generations+1)],survivors_per_generation)
-	pylab.show()
+	replicate_populations=[Population() for x in range(1000)]
+	total_individuals_survived=[1000]
+	for x in range(number_of_generations):
+		no_of_individuals_survived=0
+		number_of_surviving_populations=0
+		for pop in replicate_populations:
+			temp=pop.get_Next_Generation()
+			if temp:
+				number_of_surviving_populations+=1
+			no_of_individuals_survived+=temp
+		total_individuals_survived.append(no_of_individuals_survived)
 
+	pylab.title(f'Total no of Survivors for {number_of_generations} generations')
+	pylab.xlabel('Generation Number')
+	pylab.ylabel('Total Number of survivors summed')
+	pylab.plot([x for x in range(len(total_individuals_survived))],total_individuals_survived)
+	pylab.show()
 		
 if __name__ == '__main__':
-	total_number_of_individuals(100,50)
+	print(total_number_of_individuals())
